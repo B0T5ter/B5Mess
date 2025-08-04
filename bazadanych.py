@@ -5,7 +5,7 @@ try:
     conn = psycopg2.connect(
         dbname="B5Mlogin",
         user="postgres",
-        password="twoje_haslo",  # wpisz swoje hasło
+        password="haslo123",  # wpisz swoje hasło
         host="localhost",
         port=5432
     )
