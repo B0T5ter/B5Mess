@@ -67,13 +67,22 @@ def add_new_user(username, password):
 
 
 
-def loging(message):
-    option, login, password = message.split(":")
-    print(message.split(":"))
+def loging(conn):
+    message = conn.recv(1024).decode().strip()
+    print("Odebrano:", message)
+
+    try:
+        option, login, password = message.split(":")
+    except ValueError:
+        conn.sendall("AUTH:FALSE".encode())
+        return None
+
     if option == "1" and get_password_for_user(login, password):
         conn.sendall("AUTH:TRUE".encode())
+        return login  # Zwracamy login, żeby później użyć
     else:
         conn.sendall("AUTH:FALSE".encode())
+        return None
 
 def handle_client(conn, addr):
     with conn:
