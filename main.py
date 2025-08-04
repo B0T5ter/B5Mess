@@ -1,25 +1,19 @@
-# client.py
 import socket
 
-HOST = '4.tcp.eu.ngrok.io'  # Adres z forwarding
-PORT = 13007                # Port z forwarding
+HOST = '4.tcp.eu.ngrok.io'  # <-- tu wstaw swój z ngrok
+PORT = 13007                # <-- tu też swój
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((HOST, PORT))
 
-try:
-    client_socket.connect((HOST, PORT))
-    print("🔌 Połączono z serwerem!")
+# --- LOGIN ---
+login = input("Login: ")
+haslo = input("Hasło: ")
 
-    while True:
-        message = input("💬 Wpisz wiadomość (lub 'exit'): ")
-        if message.lower() == 'exit':
-            break
-        client_socket.sendall(message.encode())
-        data = client_socket.recv(1024).decode()
-        print(f"📩 Odpowiedź: {data}")
+wiadomosc = f"{login}:{haslo}"
+client_socket.send(wiadomosc.encode())  # wysyłasz login i hasło
 
-except Exception as e:
-    print(f"❌ Błąd klienta: {e}")
+odpowiedz = client_socket.recv(1024).decode()
+print("Serwer mówi:", odpowiedz)
 
-finally:
-    client_socket.close()
+client_socket.close()
