@@ -1,19 +1,25 @@
+# client.py
 import socket
 
-SERVER_IP = '84.205.172.32'
-PORT = 12345
+HOST = '4.tcp.eu.ngrok.io'
+PORT = 18298
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
-    client_socket.connect((SERVER_IP, PORT))
-    print("✅ Połączono z serwerem")
+    client_socket.connect((HOST, PORT))
+    print("🔌 Połączono z serwerem!")
 
-    message = "Szef testuje z zewnątrz 💀"
-    client_socket.send(message.encode('utf-8'))
+    while True:
+        message = input("💬 Wpisz wiadomość (lub 'exit'): ")
+        if message.lower() == 'exit':
+            break
+        client_socket.sendall(message.encode())
+        data = client_socket.recv(1024).decode()
+        print(f"📩 Odpowiedź: {data}")
 
-    print("📤 Wiadomość wysłana")
 except Exception as e:
-    print("❌ Błąd klienta:", e)
+    print(f"❌ Błąd klienta: {e}")
+
 finally:
     client_socket.close()

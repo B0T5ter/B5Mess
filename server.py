@@ -1,23 +1,24 @@
+# server.py
 import socket
 
-# Tworzymy gniazdo
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+HOST = '0.0.0.0'  # nasłuchuj na wszystkich interfejsach
+PORT = 12345
 
-# BIND: przypisujemy IP i port (host = '0.0.0.0' nasłuchuje na wszystkich interfejsach)
-server_socket.bind(('0.0.0.0', 12345))
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((HOST, PORT))
 server_socket.listen(1)
 
-print("Serwer nasłuchuje... 🕵️")
+print(f"🟢 Serwer nasłuchuje na {HOST}:{PORT}...")
 
-# Akceptujemy połączenie
 conn, addr = server_socket.accept()
-print(f"Połączono z: {addr}")
+print(f"📞 Połączono z: {addr}")
 
 while True:
-    data = conn.recv(1024)  # odbieramy dane
+    data = conn.recv(1024).decode()
     if not data:
         break
-    print("📨 Otrzymano wiadomość:", data.decode())
+    print(f"📨 Otrzymano wiadomość: {data}")
+    conn.sendall("✔️ Odebrano wiadomość!".encode())
 
 conn.close()
 server_socket.close()
