@@ -66,57 +66,72 @@ def add_new_user(username, password):
             conn.close()
 
 def loging(conn):
-    conn.sendall("Welcome in B5Message\n".encode())
-    conn.sendall("1. Log in\n".encode())
-    conn.sendall("2. Sign up\n".encode())
+    try:
+        conn.sendall("Welcome in B5Message\n".encode())
+        conn.sendall("1. Log in\n".encode())
+        conn.sendall("2. Sign up\n".encode())
 
-    while True:
-        data = conn.recv(1024).decode().strip()
-        if data in ("1", "2"):
-            break
+        while True:
+            data = conn.recv(1024).decode().strip()
+            if not data:
+                # klient się rozłączył
+                return None
+            if data in ("1", "2"):
+                break
+            else:
+                conn.sendall("Wybierz 1 lub 2\n".encode())
+
+        if data == "1":
+            while True:
+                conn.sendall("Login: ".encode())
+                login = conn.recv(1024).decode().strip()
+                if not login:
+                    return None
+
+                conn.sendall("Password: ".encode())
+                password = conn.recv(1024).decode().strip()
+                if not password:
+                    return None
+
+                if get_password_for_user(login, password):
+                    conn.sendall("✅ Zalogowano pomyślnie\n".encode())
+                    return login
+                else:
+                    conn.sendall("Błędny login lub hasło, spróbuj jeszcze raz\n".encode())
+        elif data == "2":
+            while True:
+                conn.sendall("Login: ".encode())
+                login = conn.recv(1024).decode().strip()
+                if not login:
+                    return None
+
+                conn.sendall("Password: ".encode())
+                password = conn.recv(1024).decode().strip()
+                if not password:
+                    return None
+
+                if add_new_user(login, password):
+                    conn.sendall("✅ Konto utworzone pomyślnie\n".encode())
+                    return login
+                else:
+                    conn.sendall("❌ Użytkownik istnieje lub błąd, spróbuj inny login\n".encode())
         else:
-            conn.sendall("Wybierz 1 lub 2\n".encode())
-
-    if data == "1":
-        while True:
-            conn.sendall("Login: ".encode())
-            login = conn.recv(1024).decode().strip()
-
-            conn.sendall("Password: ".encode())
-            password = conn.recv(1024).decode().strip()
-
-            if get_password_for_user(login, password):
-                conn.sendall("✅ Zalogowano pomyślnie\n".encode())
-                return login
-            else:
-                conn.sendall("Błędny login lub hasło, spróbuj jeszcze raz\n".encode())
-    elif data == "2":
-        while True:
-            conn.sendall("Login: ".encode())
-            login = conn.recv(1024).decode().strip()
-
-            conn.sendall("Password: ".encode())
-            password = conn.recv(1024).decode().strip()
-
-            if add_new_user(login, password):
-                conn.sendall("✅ Konto utworzone pomyślnie\n".encode())
-                return login
-            else:
-                conn.sendall("❌ Użytkownik istnieje lub błąd, spróbuj inny login\n".encode())
-    else:
-        conn.sendall("Nieznana opcja, rozłączam\n".encode())
+            conn.sendall("Nieznana opcja, rozłączam\n".encode())
+            return None
+    except (BrokenPipeError, ConnectionResetError):
+        print("Klient rozłączył się przedwcześnie")
         return None
-
-
+    
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
         login = loging(conn)
         if login:
             print(f"✔️ Użytkownik {login} się zalogował/rejestrował")
-            # tutaj możesz obsłużyć dalszą komunikację z klientem
+            # dalsza obsługa
         else:
-            print(f"❌ Nieudane logowanie lub rejestracja z {addr}")
+            print(f"❌ Nieudane logowanie lub rozłączenie z {addr}")
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
