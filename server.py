@@ -1,24 +1,41 @@
-# server.py
 import socket
+import threading
 
-HOST = '0.0.0.0'  # nasłuchuj na wszystkich interfejsach
+# Przykładowa baza użytkowników
+users = {
+    "filip": "haslo123",
+    "admin": "admin123"
+}
+
+def handle_client(conn, addr):
+    try:
+        conn.sendall(b"LOGIN:")
+        login = conn.recv(1024).decode().strip()
+
+        conn.sendall(b"HASLO:")
+        haslo = conn.recv(1024).decode().strip()
+
+        if login in users and users[login] == haslo:
+            conn.sendall(b"OK\n")
+            print(f"{login} zalogowany z {addr}")
+            # Dalej można rozwinąć: czat, komendy itp.
+        else:
+            conn.sendall(b"NIE\n")
+            print(f"Nieudane logowanie z {addr}")
+
+    except Exception as e:
+        print(f"Błąd: {e}")
+    finally:
+        conn.close()
+
+HOST = '0.0.0.0'
 PORT = 12345
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
-server_socket.listen(1)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    print("🔐 Serwer logowania gotowy")
 
-print(f"🟢 Serwer nasłuchuje na {HOST}:{PORT}...")
-
-conn, addr = server_socket.accept()
-print(f"📞 Połączono z: {addr}")
-
-while True:
-    data = conn.recv(1024).decode()
-    if not data:
-        break
-    print(f"📨 Otrzymano wiadomość: {data}")
-    conn.sendall("✔️ Odebrano wiadomość!".encode())
-
-conn.close()
-server_socket.close()
+    while True:
+        conn, addr = s.accept()
+        threading.Thread(target=handle_client, args=(conn, addr)).start()
