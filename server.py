@@ -65,63 +65,15 @@ def add_new_user(username, password):
         if conn:
             conn.close()
 
-def loging(conn):
-    try:
-        conn.sendall("Welcome in B5Message\n".encode())
-        conn.sendall("1. Log in\n".encode())
-        conn.sendall("2. Sign up\n".encode())
 
-        while True:
-            data = conn.recv(1024).decode().strip()
-            if not data:
-                # klient się rozłączył
-                return None
-            if data in ("1", "2"):
-                break
-            else:
-                conn.sendall("Wybierz 1 lub 2\n".encode())
 
-        if data == "1":
-            while True:
-                conn.sendall("Login: ".encode())
-                login = conn.recv(1024).decode().strip()
-                if not login:
-                    return None
-
-                conn.sendall("Password: ".encode())
-                password = conn.recv(1024).decode().strip()
-                if not password:
-                    return None
-
-                if get_password_for_user(login, password):
-                    conn.sendall("✅ Zalogowano pomyślnie\n".encode())
-                    return login
-                else:
-                    conn.sendall("Błędny login lub hasło, spróbuj jeszcze raz\n".encode())
-        elif data == "2":
-            while True:
-                conn.sendall("Login: ".encode())
-                login = conn.recv(1024).decode().strip()
-                if not login:
-                    return None
-
-                conn.sendall("Password: ".encode())
-                password = conn.recv(1024).decode().strip()
-                if not password:
-                    return None
-
-                if add_new_user(login, password):
-                    conn.sendall("✅ Konto utworzone pomyślnie\n".encode())
-                    return login
-                else:
-                    conn.sendall("❌ Użytkownik istnieje lub błąd, spróbuj inny login\n".encode())
-        else:
-            conn.sendall("Nieznana opcja, rozłączam\n".encode())
-            return None
-    except (BrokenPipeError, ConnectionResetError):
-        print("Klient rozłączył się przedwcześnie")
-        return None
-    
+def loging(message):
+    option, login, password = message.split(":")
+    if option == "1" and get_password_for_user(login, password):
+        conn.sendall("AUTH:TRUE".encode())
+    else:
+        conn.sendall("AUTH:FALSE".encode())
+        
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
