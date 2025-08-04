@@ -122,7 +122,16 @@ def loging(conn):
             return None
 
 def main_page(conn):
-    print("main page")
+    message = conn.recv(1024).decode().strip()
+    try:
+        option, username, password = message.split(":")
+    except ValueError:
+        conn.sendall("AUTH:FALSE".encode())
+        return None
+    
+    if option == "3":
+        friends = get_friends(username, password)
+        conn.sendall(friends.encode())
 
 def handle_client(conn, addr):
     with conn:

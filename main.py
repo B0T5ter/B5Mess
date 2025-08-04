@@ -26,7 +26,7 @@ def loging():
             response = client_socket.recv(1024).decode()
             if "AUTH:TRUE" in response:
                 print("Logged in")
-                return
+                return login, password
             else:
                 print("Invalid login or password")
     
