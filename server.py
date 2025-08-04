@@ -122,7 +122,8 @@ def loging(conn):
             return None
 
 def main_page(conn):
-    conn.sendall("AUTH:TRUE".encode())
+    print("main page")
+
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
