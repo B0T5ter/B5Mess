@@ -80,6 +80,7 @@ def add_contact():
             print("Friend added")
         else:
             print("No friends foudeed")
+            
 if __name__ == "__main__":
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:

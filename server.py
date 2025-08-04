@@ -192,11 +192,16 @@ def handle_client(conn, addr):
             conn.sendall(friends.encode())
         
         if option == "4":
-            if user_exists(username):
-                add_friend(password, username)
-                conn.sendall("AUTH:TRUE".encode())
+            # Sprawdzamy, czy właściciel konta istnieje
+            if user_exists(password):  # password tu to login właściciela konta
+                success = add_friend(password, username)  # dodajemy "username" jako znajomego do "password"
+                if success:
+                    conn.sendall("AUTH:TRUE".encode())
+                else:
+                    conn.sendall("AUTH:FALSE".encode())
             else:
                 conn.sendall("AUTH:FALSE".encode())
+
 if __name__ == "__main__":
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
