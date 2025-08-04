@@ -1,19 +1,26 @@
 import socket
 
-HOST = '4.tcp.eu.ngrok.io'  # <-- tu wstaw swój z ngrok
-PORT = 13007                # <-- tu też swój
+# 🔌 Dane do połączenia z serwerem
+HOST = '4.tcp.eu.ngrok.io'  # Adres serwera (np. ngrok)
+PORT = 13007                # Port serwera
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((HOST, PORT))
-
-# --- LOGIN ---
+# 🔒 Dane logowania
 login = input("Login: ")
-haslo = input("Hasło: ")
+password = input("Hasło: ")
+credentials = f"{login}:{password}"
 
-wiadomosc = f"{login}:{haslo}"
-client_socket.send(wiadomosc.encode())  # wysyłasz login i hasło
+try:
+    # ⚙️ Tworzenie połączenia TCP
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+        client_socket.connect((HOST, PORT))  # Połączenie z serwerem
+        print("🔗 Połączono z serwerem")
 
-odpowiedz = client_socket.recv(1024).decode()
-print("Serwer mówi:", odpowiedz)
+        # 📤 Wysyłanie danych logowania
+        client_socket.sendall(credentials.encode())
 
-client_socket.close()
+        # 📥 Odbieranie odpowiedzi
+        response = client_socket.recv(1024)
+        print("📨 Odpowiedź serwera:", response.decode())
+
+except Exception as e:
+    print("❌ Wystąpił błąd:", e)
