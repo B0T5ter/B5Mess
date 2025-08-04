@@ -13,7 +13,7 @@ def get_password_for_user(username, pasw):
         conn = psycopg2.connect(
             dbname="B5Mlogin",
             user="postgres",
-            password="twoje_haslo",
+            password="haslo123",
             host="localhost"
         )
         cur = conn.cursor()
