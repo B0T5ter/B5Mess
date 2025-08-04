@@ -40,29 +40,35 @@ def loging():
             response = client_socket.recv(1024).decode()
             if "AUTH:TRUE" in response:
                 print("Account created")
-                return
+                return login, password
             else:
                 print("Account is already existing")
 
+def home_page(login, password):
+    
+    print("Main Page")
+    print("1. Contacts list")
+    print("2. Add contact")
+
+    while True:
+        print("(input 1 or 2)")
+        option = input(">")
+        if option in ("1", "2"):
+            break
+        else:
+            print("wrong option")
+    
+    if option == "1":
+        message = f"{3}:{login}:{password}"
+        client_socket.sendall(message.encode())
+        contacts = client_socket.recv(1024).decode()
+        print(contacts)
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         client_socket.connect((HOST, PORT))
         print("🔗 Połączono z serwerem")
-        loging()
-        while True:
-            # 📥 odbieranie wiadomości od serwera
-            response = client_socket.recv(1024).decode()
-            if not response:
-                print("🛑 Serwer zakończył połączenie")
-                break
-            print(response)
-
-            # 📤 wysyłanie wiadomości
-            message = input(">")
-            if message.lower() == "exit":
-                print("👋 Kończę połączenie")
-                break
-            client_socket.sendall(message.encode())
+        login, password = loging()
+        home_page(login, password)
 
 except Exception as e:
     print("❌ Wystąpił błąd:", e)

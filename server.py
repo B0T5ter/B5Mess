@@ -65,6 +65,34 @@ def add_new_user(username, password):
         if conn:
             conn.close()
 
+def get_friends(username, password):
+    conn = None
+    cur = None
+    try:
+        conn = psycopg2.connect(
+            dbname="B5Mlogin",
+            user="postgres",
+            password="twoje_haslo",
+            host="localhost"
+        )
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT znajomi FROM users WHERE username = %s AND password = %s;",
+            (username, password)
+        )
+        result = cur.fetchone()
+        if result:
+            return result[0]  # to będzie tekst z kolumny znajomi
+        else:
+            return None
+    except Exception as e:
+        print("Błąd:", e)
+        return None
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 def loging(conn):
@@ -72,32 +100,34 @@ def loging(conn):
     print("Odebrano:", message)
 
     try:
-        option, login, password = message.split(":")
+        option, username, password = message.split(":")
     except ValueError:
         conn.sendall("AUTH:FALSE".encode())
         return None
 
     if option == "1":
-        if get_password_for_user(login, password):
+        if get_password_for_user(username, password):
             conn.sendall("AUTH:TRUE".encode())
-            return login
+            return username
         else:
             conn.sendall("AUTH:FALSE".encode())
             return None
         
     if option == "2":
-        if add_new_user(login, password):
+        if add_new_user(username, password):
             conn.sendall("AUTH:TRUE".encode())
-            return login
+            return username
         else:
             conn.sendall("AUTH:FALSE".encode())
             return None
 
+def main_page(conn):
+    conn.sendall("AUTH:TRUE".encode())
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
         loging(conn)
-
+        main_page(conn)
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
