@@ -77,12 +77,21 @@ def loging(conn):
         conn.sendall("AUTH:FALSE".encode())
         return None
 
-    if option == "1" and get_password_for_user(login, password):
-        conn.sendall("AUTH:TRUE".encode())
-        return login  # Zwracamy login, żeby później użyć
-    else:
-        conn.sendall("AUTH:FALSE".encode())
-        return None
+    if option == "1":
+        if get_password_for_user(login, password):
+            conn.sendall("AUTH:TRUE".encode())
+            return login
+        else:
+            conn.sendall("AUTH:FALSE".encode())
+            return None
+        
+    if option == "2":
+        if add_new_user(login, password):
+            conn.sendall("AUTH:TRUE".encode())
+            return login
+        else:
+            conn.sendall("AUTH:FALSE".encode())
+            return None
 
 def handle_client(conn, addr):
     with conn:

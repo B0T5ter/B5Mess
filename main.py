@@ -29,6 +29,20 @@ def loging():
                 return
             else:
                 print("Invalid login or password")
+    
+    #Sign up
+    if option == "2":
+        while True:
+            login = input("login: ")
+            password = input("password: ")
+            message = f"{option}:{login}:{password}"
+            client_socket.sendall(message.encode())
+            response = client_socket.recv(1024).decode()
+            if "AUTH:TRUE" in response:
+                print("Account created")
+                return
+            else:
+                print("Account is already existing")
 
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
