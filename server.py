@@ -69,11 +69,12 @@ def add_new_user(username, password):
 
 def loging(message):
     option, login, password = message.split(":")
+    print(message.split(":"))
     if option == "1" and get_password_for_user(login, password):
         conn.sendall("AUTH:TRUE".encode())
     else:
         conn.sendall("AUTH:FALSE".encode())
-        
+
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
