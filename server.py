@@ -66,9 +66,9 @@ def add_new_user(username, password):
             conn.close()
 
 def loging(conn):
-    conn.sendall("Welcome in B5Message".encode())
-    conn.sendall("1. Log in".encode())
-    conn.sendall("2. Sign up".encode())
+    conn.sendall("Welcome in B5Message\n".encode())
+    conn.sendall("1. Log in\n".encode())
+    conn.sendall("2. Sign up\n".encode())
 
     while True:
         data = conn.recv(1024).decode().strip()
@@ -77,7 +77,6 @@ def loging(conn):
         else:
             conn.sendall("Wybierz 1 lub 2\n".encode())
 
-    #Logowanie
     if data == "1":
         while True:
             conn.sendall("Login: ".encode())
@@ -91,35 +90,33 @@ def loging(conn):
                 return login
             else:
                 conn.sendall("Błędny login lub hasło, spróbuj jeszcze raz\n".encode())
-    
-    if data == "2":
-        conn.sendall("Login: ".encode())
-        login = conn.recv(1024).decode().strip()
-        conn.sendall("Password: ".encode())
-        password = conn.recv(1024).decode().strip()
+    elif data == "2":
+        while True:
+            conn.sendall("Login: ".encode())
+            login = conn.recv(1024).decode().strip()
 
-        add_new_user(login, password)
-        return login
-    
+            conn.sendall("Password: ".encode())
+            password = conn.recv(1024).decode().strip()
+
+            if add_new_user(login, password):
+                conn.sendall("✅ Konto utworzone pomyślnie\n".encode())
+                return login
+            else:
+                conn.sendall("❌ Użytkownik istnieje lub błąd, spróbuj inny login\n".encode())
+    else:
+        conn.sendall("Nieznana opcja, rozłączam\n".encode())
+        return None
+
+
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
-        loging(conn)
-
-        try:
-            login, password = data.split(":")
-            print(f"DEBUG: Login: {login}, Hasło: {password}")
-        except Exception as e:
-            print(f"ERROR podczas splitowania: {e}")
-            conn.sendall("❌ Nieprawidłowy format danych".encode())
-            return
-
-        if get_password_for_user(login, password):
-            print(f"✔️ Użytkownik {login} się zalogował")
-            conn.sendall("✅ Zalogowano pomyślnie".encode())
+        login = loging(conn)
+        if login:
+            print(f"✔️ Użytkownik {login} się zalogował/rejestrował")
+            # tutaj możesz obsłużyć dalszą komunikację z klientem
         else:
-            print(f"❌ Nieudane logowanie z {addr}")
-            conn.sendall("❌ Błędny login lub hasło".encode())
+            print(f"❌ Nieudane logowanie lub rejestracja z {addr}")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
