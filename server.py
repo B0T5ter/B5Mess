@@ -114,33 +114,35 @@ def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
         message = conn.recv(1024).decode().strip()
-    print("Odebrano:", message)
+        print("Odebrano:", message)
 
-    try:
-        option, username, password = message.split(":")
-    except ValueError:
-        conn.sendall("AUTH:FALSE".encode())
-        return None
-
-    if option == "1":
-        if get_password_for_user(username, password):
-            conn.sendall("AUTH:TRUE".encode())
-            return username
-        else:
+        try:
+            option, username, password = message.split(":")
+        except ValueError:
             conn.sendall("AUTH:FALSE".encode())
             return None
-        
-    if option == "2":
-        if add_new_user(username, password):
-            conn.sendall("AUTH:TRUE".encode())
-            return username
-        else:
-            conn.sendall("AUTH:FALSE".encode())
-            return None
-        
-    if option == "3":
-        friends = get_friends(username, password)
-        conn.sendall(f'{friends}'.encode())
+
+        if option == "1":
+            if get_password_for_user(username, password):
+                conn.sendall("AUTH:TRUE".encode())
+                return username
+            else:
+                conn.sendall("AUTH:FALSE".encode())
+                return None
+
+        if option == "2":
+            if add_new_user(username, password):
+                conn.sendall("AUTH:TRUE".encode())
+                return username
+            else:
+                conn.sendall("AUTH:FALSE".encode())
+                return None
+
+        if option == "3":
+            friends = get_friends(username, password)
+            if friends is None:
+                friends = "No friends found"
+            conn.sendall(friends.encode())
 
 if __name__ == "__main__":
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

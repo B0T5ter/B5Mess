@@ -64,6 +64,9 @@ def home_page(login, password):
         contacts = client_socket.recv(1024).decode()
         print(contacts)
 
+def add_contact():
+    print("Add contact")
+    
 if __name__ == "__main__":
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
@@ -71,6 +74,6 @@ if __name__ == "__main__":
             print("🔗 Połączono z serwerem")
             login, password = loging()
             home_page(login, password)
-    
+
     except Exception as e:
         print("❌ Wystąpił błąd:", e)
