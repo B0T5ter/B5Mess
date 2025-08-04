@@ -1,8 +1,8 @@
 # client.py
 import socket
 
-HOST = '4.tcp.eu.ngrok.io'
-PORT = 18298
+HOST = '4.tcp.eu.ngrok.io'  # Adres z forwarding
+PORT = 13007                # Port z forwarding
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
