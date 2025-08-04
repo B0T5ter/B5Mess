@@ -2,7 +2,7 @@ import socket
 
 users = {
     "filip": "haslo123",
-    "admin": "root",
+    "dominika": "haslo123",
 }
 
 HOST = '0.0.0.0'

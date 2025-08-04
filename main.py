@@ -1,8 +1,8 @@
 import socket
 
-# 🔌 Dane do połączenia z serwerem
-HOST = '4.tcp.eu.ngrok.io'  # Adres serwera (np. ngrok)
-PORT = 13007                # Port serwera
+
+HOST = '2.tcp.eu.ngrok.io'
+PORT = 18167              
 
 # 🔒 Dane logowania
 login = input("Login: ")
@@ -10,7 +10,6 @@ password = input("Hasło: ")
 credentials = f"{login}:{password}"
 
 try:
-    # ⚙️ Tworzenie połączenia TCP
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         client_socket.connect((HOST, PORT))  # Połączenie z serwerem
         print("🔗 Połączono z serwerem")
