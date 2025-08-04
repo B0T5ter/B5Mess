@@ -5,7 +5,8 @@ PORT = 18374
 
 #Logowanie
 def loging():
-    print("\nWelcome in B5Mess")
+    print("-----")
+    print("Welcome in B5Mess")
     print("1. Login")
     print("2. Sign up")
     while True:
@@ -45,7 +46,7 @@ def loging():
                 print("Account is already existing")
 
 def home_page(login, password):
-    
+    print("-----")
     print("Main Page")
     print("1. Contacts list")
     print("2. Add contact")
@@ -64,9 +65,21 @@ def home_page(login, password):
         contacts = client_socket.recv(1024).decode()
         print(contacts)
 
+    if option == "2":
+        add_contact()
+
 def add_contact():
-    print("Add contact")
-    
+    while True:
+        print("-----")
+        print("Add contact")
+        contact = input(">")
+        message = f"{4}:{contact}:{login}"
+        client_socket.sendall(message.encode())
+        response = client_socket.recv(1024).decode()
+        if "AUTH:TRUE" in response:
+            print("Friend added")
+        else:
+            print("No friends foudeed")
 if __name__ == "__main__":
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:

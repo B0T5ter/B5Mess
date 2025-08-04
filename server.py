@@ -108,6 +108,53 @@ def user_exists(username):
         if cur: cur.close()
         if conn: conn.close()
 
+def add_friend(username, friend_login):
+    conn = None
+    cur = None
+    try:
+        conn = psycopg2.connect(
+            dbname="B5Mlogin",
+            user="postgres",
+            password="haslo123",
+            host="localhost"
+        )
+        cur = conn.cursor()
+
+        # Pobieramy obecny string znajomych
+        cur.execute("SELECT znajomi FROM users WHERE username = %s;", (username,))
+        result = cur.fetchone()
+
+        if result is None:
+            print("❌ Użytkownik nie istnieje")
+            return False
+
+        current_friends = result[0] or ""  # jeśli NULL, to pusty string
+
+        # Sprawdź, czy znajomy już jest na liście (żeby nie dodawać duplikatów)
+        friends_list = [f.strip() for f in current_friends.split(",") if f.strip()]
+        if friend_login in friends_list:
+            print(f"👀 {friend_login} już jest znajomym użytkownika {username}")
+            return False
+
+        # Dodajemy nowego znajomego
+        friends_list.append(friend_login)
+        new_friends_str = ",".join(friends_list)
+
+        # Aktualizujemy w bazie
+        cur.execute("UPDATE users SET znajomi = %s WHERE username = %s;", (new_friends_str, username))
+        conn.commit()
+
+        print(f"✅ Dodano {friend_login} do znajomych użytkownika {username}")
+        return True
+
+    except Exception as e:
+        print("Błąd:", e)
+        return False
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 def handle_client(conn, addr):
@@ -143,7 +190,13 @@ def handle_client(conn, addr):
             if friends is None:
                 friends = "No friends found"
             conn.sendall(friends.encode())
-
+        
+        if option == "4":
+            if user_exists(username):
+                add_friend(password, username)
+                conn.sendall("AUTH:TRUE".encode())
+            else:
+                conn.sendall("AUTH:FALSE".encode())
 if __name__ == "__main__":
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
