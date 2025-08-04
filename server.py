@@ -131,7 +131,7 @@ def main_page(conn):
     
     if option == "3":
         friends = get_friends(username, password)
-        conn.sendall(friends.encode())
+        conn.sendall(f'{friends}'.encode())
 
 def handle_client(conn, addr):
     with conn:
