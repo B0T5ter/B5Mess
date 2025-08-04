@@ -1,46 +1,36 @@
 import socket
 
-# 🔐 Prosta baza danych użytkowników
 users = {
     "filip": "haslo123",
     "admin": "root",
-    "szefu": "1234"
 }
 
 HOST = '0.0.0.0'
 PORT = 12345
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-    server_socket.bind((HOST, PORT))
-    server_socket.listen()
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
     print("🔐 Serwer logowania gotowy")
 
     while True:
-        conn, addr = server_socket.accept()
+        conn, addr = s.accept()
         with conn:
             print(f"📥 Połączono z {addr}")
+            data = conn.recv(1024).decode()
+            print(f"DEBUG: Odebrano dane: '{data}'")
+
             try:
-                data = conn.recv(1024).decode()
-                if not data:
-                    print("⚠️ Brak danych")
-                    continue
-
-                print(f"📨 Odebrano: {data}")
-                try:
-                    login, password = data.split(":")
-                except ValueError:
-                    conn.sendall("❌ Nieprawidłowy format danych".encode())
-                    continue
-
-                # ✅ Sprawdzanie danych logowania
-                if login in users and users[login] == password:
-                    response = "✅ Zalogowano pomyślnie"
-                    print(f"✔️ Użytkownik {login} się zalogował")
-                else:
-                    response = "❌ Błędny login lub hasło"
-                    print(f"❌ Nieudane logowanie z {addr}")
-
-                conn.sendall(response.encode())
-
+                login, password = data.split(":")
+                print(f"DEBUG: Login: {login}, Hasło: {password}")
             except Exception as e:
-                print("💥 Błąd:", e)
+                print(f"ERROR podczas splitowania: {e}")
+                conn.sendall("❌ Nieprawidłowy format danych".encode())
+                continue
+
+            if login in users and users[login] == password:
+                print(f"✔️ Użytkownik {login} się zalogował")
+                conn.sendall("✅ Zalogowano pomyślnie".encode())
+            else:
+                print(f"❌ Nieudane logowanie z {addr}")
+                conn.sendall("❌ Błędny login lub hasło".encode())
