@@ -78,12 +78,8 @@ def loging(message):
 def handle_client(conn, addr):
     with conn:
         print(f"📥 Połączono z {addr}")
-        login = loging(conn)
-        if login:
-            print(f"✔️ Użytkownik {login} się zalogował/rejestrował")
-            # dalsza obsługa
-        else:
-            print(f"❌ Nieudane logowanie lub rozłączenie z {addr}")
+        loging(conn)
+
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
