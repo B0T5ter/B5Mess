@@ -63,12 +63,14 @@ def home_page(login, password):
         client_socket.sendall(message.encode())
         contacts = client_socket.recv(1024).decode()
         print(contacts)
-try:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-        client_socket.connect((HOST, PORT))
-        print("🔗 Połączono z serwerem")
-        login, password = loging()
-        home_page(login, password)
 
-except Exception as e:
-    print("❌ Wystąpił błąd:", e)
+if __name__ == "__main__":
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((HOST, PORT))
+            print("🔗 Połączono z serwerem")
+            login, password = loging()
+            home_page(login, password)
+    
+    except Exception as e:
+        print("❌ Wystąpił błąd:", e)
